@@ -11,7 +11,7 @@ using namespace std;
 
 vector<string> batteryBlocks;
 
-vector<int> convertStringToDigits(const string& digitString)
+vector<int> convertStringToDigits(const string& digitString)          //Varför gjorde jag så här?!?
 {
     vector<int> result;
     // Iterate over each character in the input string
@@ -28,7 +28,7 @@ vector<int> convertStringToDigits(const string& digitString)
 
 
 
-string digitsToString(int digitA, int digitB)
+string digitsToString(int digitA, int digitB)                       //Nämen, det var väl ändå onödigt!
 {
     string rString = to_string(digitA);
     rString += to_string(digitB);
@@ -37,7 +37,7 @@ string digitsToString(int digitA, int digitB)
 }
 
 
-string removeDubbla(string s)
+string removeDubbla(string s)                                       //Such stuff...
 {
     string r = "";
 
@@ -58,6 +58,10 @@ string removeDubbla(string s)
     return r;
 }
 
+
+
+
+//PART 2
 void recPart_two(string block, long long& highest, int index, string strTemp)
 {
 
@@ -105,6 +109,8 @@ long long part_two(string block)
     return highestHighest;
 }
 
+
+//PART 1
 int getHighestJoltage(string block)
 {
 
@@ -131,7 +137,7 @@ int getHighestJoltage(string block)
 
 int main()
 {
-      auto begin = std::chrono::high_resolution_clock::now();
+    auto begin = std::chrono::high_resolution_clock::now();
 
     string filename = "input.txt";
 
@@ -166,7 +172,7 @@ int main()
     cout << "Sum PART 1: " << sumHighestJoltages << endl;
     cout << "Sum PART 2: " << sumHighestJoltages_DEL2 << endl;
 
-        // Stop measuring time and calculate the elapsed time
+    // Stop measuring time and calculate the elapsed time
     auto end = std::chrono::high_resolution_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin);
 
