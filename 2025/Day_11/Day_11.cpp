@@ -23,8 +23,10 @@ struct PathState
 
     bool operator<(const PathState& other) const
     {
-        if (device != other.device) return device < other.device;
-        if (dacHit != other.dacHit) return dacHit < other.dacHit;
+        if (device != other.device) 
+            return device < other.device;
+        if (dacHit != other.dacHit) 
+            return dacHit < other.dacHit;
         return fftHit < other.fftHit;
     }
 };
@@ -50,7 +52,6 @@ vector<string> splitString(string str, string delimiter)
         while (true);
         v.push_back(str.substr(start));
     }
-
     return v;
 }
 
@@ -61,9 +62,7 @@ std::vector<std::string> split(const std::string& str)
     std::string token;
 
     while (iss >> token)
-    {
         tokens.push_back(token);
-    }
 
     return tokens;
 }
@@ -204,7 +203,5 @@ int main()
     long long s = pathCountP2("svr", dac, fft);
     cout << "Part 2: " << s << endl;
 
-
-    cout << "Hello world!" << endl;
     return 0;
 }
