@@ -1,6 +1,4 @@
-//
-// Created by Jonathan on 2025-12-19.
-//
+
 
 #ifndef TESTPROJEKT_TEST_H
 #define TESTPROJEKT_TEST_H
