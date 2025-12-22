@@ -1,5 +1,4 @@
 
-
 #ifndef TESTPROJEKT_TEST_H
 #define TESTPROJEKT_TEST_H
 
@@ -10,16 +9,73 @@
 #include <map>
 #include <set>
 #include <fstream>
+#include <functional>
+#include <numeric>
 
 
 void testCout(int x);
 
 
-template<typename T> T returnBiggest(T a, T b)
+template <typename T>
+T returnBiggest(T a, T b)
 {
     return (a > b) ? a : b;
 }
 
+template <typename T>
+void printVec(const std::vector<T>& vec, const std::string& label = "", const std::string& sep = " ")
+{
+    if (!label.empty()) std::cout << label << ": ";
+
+    for (size_t i = 0; i < vec.size(); ++i)
+    {
+        std::cout << vec[i] << (i == vec.size() - 1 ? "" : sep);
+    }
+    std::cout << std::endl;
+}
+
+template <typename T, typename Predicate>
+std::vector<T> filter(const std::vector<T>& vec, Predicate pred)
+{
+    std::vector<T> result;
+    // std::copy_if is the standard library way to do this
+    std::copy_if(vec.begin(), vec.end(), std::back_inserter(result), pred);
+    return result;
+}
+
+template <typename T>
+bool contains(const std::vector<T>& vec, const T& value)
+{
+    return std::find(vec.begin(), vec.end(), value) != vec.end();
+}
+
+template <typename T>
+int indexOf(const std::vector<T>& vec, const T& value)
+{
+    auto it = std::find(vec.begin(), vec.end(), value);
+    if (it == vec.end()) return -1;
+    return std::distance(vec.begin(), it);
+}
+
+template <typename T>
+std::vector<T> getUnique(std::vector<T> vec)
+{
+    std::sort(vec.begin(), vec.end());
+    vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
+    return vec;
+}
+
+template <typename T>
+T sumUp(const std::vector<T>& vec)
+{
+    return std::accumulate(vec.begin(), vec.end(), T(0));
+}
+
+template <typename T>
+T multiplyAll(const std::vector<T>& vec)
+{
+    return std::accumulate(vec.begin(), vec.end(), T(1), std::multiplies<T>());
+}
 
 
 struct pt3d
@@ -40,6 +96,7 @@ struct pt3d
         }
         return z < other.z;
     }
+
     bool operator==(const pt3d& other) const
     {
         return (x == other.x) && (y == other.y) && (z == other.z);
@@ -49,9 +106,6 @@ struct pt3d
     {
         return !(*this == other);
     }
-
-
-
 };
 
 
@@ -61,32 +115,11 @@ struct dxPt3d
     pt3d p2;
     long long d;
 
-    bool operator < (dxPt3d rhs) const
+    bool operator <(dxPt3d rhs) const
     {
         return d < rhs.d;
     }
 };
-
-/*
-bool cmpDistances(dxPt3d a, dxPt3d b) //Comparator function to compare Points by distance
-{
-    return a.d < b.d;
-}
-*/
-
-
-
-/*
-long long getDistance(pt3d a, pt3d b)
-{
-    long long dx = a.x - b.x;
-    long long dy = a.y - b.y;
-    long long dz = a.z - b.z;
-
-    return dx * dx + dy * dy + dz * dz;
-}
-*/
-
 
 
 struct pos
@@ -94,15 +127,18 @@ struct pos
     int x;
     int y;
 
-    bool operator==(const pos& other) const {
+    bool operator==(const pos& other) const
+    {
         return x == other.x && y == other.y;
     }
 
-    bool operator!=(const pos& other) const {
+    bool operator!=(const pos& other) const
+    {
         return !(*this == other);
     }
 
-    bool operator < (pos rhs) const {
+    bool operator <(pos rhs) const
+    {
         if (y == rhs.y)
             return x < rhs.x;
 
@@ -110,12 +146,9 @@ struct pos
     }
 
 
-    /*// Arithmetic operators make code much cleaner
-    pos operator+(const pos& other) const { return {x + other.x, y + other.y}; }
-    pos operator-(const pos& other) const { return {x - other.x, y - other.y}; }*/
-
     // Manhattan distance is extremely common in AoC
-    int manhattan(const pos& other) const {
+    int manhattan(const pos& other) const
+    {
         return std::abs(x - other.x) + std::abs(y - other.y);
     }
 
@@ -129,29 +162,33 @@ struct pos
     {
         pos rPos = {x, y};
 
-        switch(direction)
+        switch (direction)
         {
-            //up
-        case 0: case '^':
+        //up
+        case 0:
+        case '^':
             rPos.y -= steps;
             break;
 
-            //right
-        case 1: case '>':
+        //right
+        case 1:
+        case '>':
             rPos.x += steps;
             break;
 
-            //down
-        case 2: case 'v':
+        //down
+        case 2:
+        case 'v':
             rPos.y += steps;
             break;
 
-            //left
-        case 3: case '<':
+        //left
+        case 3:
+        case '<':
             rPos.x -= steps;
             break;
 
-            //do not move as default
+        //do not move as default
         default:
             std::cout << "Error in moving function -> default." << std::endl;
             break;
@@ -176,10 +213,14 @@ struct pos
         rPos.y += posToAdd.y;
         return rPos;
     }
-
-
 };
 
+inline std::ostream& operator<<(std::ostream& os, const pos& p) //Overloading << operator -> pos
+{
+    return os << "(" << p.x << "," << p.y << ")";
+}
+
+//POS: Function declarations
 pos movePos(pos startP, int direction, int steps = 1);
 pos diffPos(const pos& a, const pos& b);
 int turnDir(int currentDirection, int steps);
@@ -218,12 +259,18 @@ struct Grid
             data[p.y][p.x] = c;
     }
 
-    void printGrid(const std::set<pos>& overlay = {}, char overlayChar = 'X') const {
-        for (int y = 0; y < rows; ++y) {
-            for (int x = 0; x < cols; ++x) {
-                if (overlay.count({x, y})) {
+    void printGrid(const std::set<pos>& overlay = {}, char overlayChar = 'X') const
+    {
+        for (int y = 0; y < rows; ++y)
+        {
+            for (int x = 0; x < cols; ++x)
+            {
+                if (overlay.count({x, y}))
+                {
                     std::cout << overlayChar;
-                } else {
+                }
+                else
+                {
                     std::cout << data[y][x];
                 }
             }
@@ -232,8 +279,10 @@ struct Grid
         std::cout << std::endl;
     }
 
+
     //Hashing of Grid state in Single String -> Set, Map !FOR MEMOIZATION!
-    std::string getGridHashAsStr() const {
+    std::string getGridHashAsStr() const
+    {
         std::string hash = "";
         for (const auto& row : data)
             hash += row;
@@ -253,6 +302,36 @@ struct Grid
         }
         return counts;
     }
+
+    void printDistinctChars()
+    {
+        std::map<char, int> rDistinctCharMap = countDistinctChars();
+
+        std::cout << "Distinct chars \n";
+        for (auto key : rDistinctCharMap)
+        {
+            std::cout << key.first << " " << key.second << std::endl;
+        }
+    }
+
+    void printRange()
+    {
+        std::cout << "Grid Max Range:\nRows: " << rows << " Cols: " << cols << std::endl;
+    }
+
+    template <typename F>
+    void forEach(F func)
+    {
+        for (int y = 0; y < rows; ++y)
+        {
+            for (int x = 0; x < cols; ++x)
+            {
+                // Pass the position and the character at that position to the function
+                func(pos{x, y}, data[y][x]);
+            }
+        }
+    }
+
 
     //Returns all positions of a specific character
     std::vector<pos> findAllChPos(char target) const
@@ -301,34 +380,22 @@ struct Grid
         }
     }
 
-    // // Get all positions for a char instantly (from charPositionsMap)
-    // std::vector<pos> getLocations(char c) const {
-    //     if (charPositionsMap.count(c)) {
-    //         return charPositionsMap.at(c);
-    //     }
-    //     return {}; // Return empty vector if char doesn't exist
-    // }
-
-    // // Get count of a specific char instantly
-    // int getCount(char c) const {
-    //     if (charPositionsMap.count(c)) {
-    //         return (int)charPositionsMap.at(c).size();
-    //     }
-    //     return 0;
-    // }
 
     // 1. Get 4-way neighbors with optional distance multiplier
-    std::vector<pos> getAdjacentPos4(pos p, int dist = 1) {
+    std::vector<pos> getAdjacentPos4(pos p, int dist = 1)
+    {
         std::vector<pos> neighbors;
         // Basic unit offsets
         static const std::vector<pos> units = {{0, -1}, {1, 0}, {0, 1}, {-1, 0}};
 
-        for (const auto& u : units) {
+        for (const auto& u : units)
+        {
             // Apply the multiplier to the unit offset
             pos off = {u.x * dist, u.y * dist};
             pos next = p.addPos(off);
 
-            if (isInRange(next)) {
+            if (isInRange(next))
+            {
                 neighbors.push_back(next);
             }
         }
@@ -336,17 +403,21 @@ struct Grid
     }
 
     // 2. Get 8-way neighbors with optional distance multiplier
-    std::vector<pos> getAdjacentPos8(pos p, int dist = 1) {
+    std::vector<pos> getAdjacentPos8(pos p, int dist = 1)
+    {
         std::vector<pos> neighbors;
-        for (int dy = -1; dy <= 1; ++dy) {
-            for (int dx = -1; dx <= 1; ++dx) {
+        for (int dy = -1; dy <= 1; ++dy)
+        {
+            for (int dx = -1; dx <= 1; ++dx)
+            {
                 if (dx == 0 && dy == 0) continue;
 
                 // Apply the multiplier to the loop offsets
                 pos off = {dx * dist, dy * dist};
                 pos next = p.addPos(off);
 
-                if (isInRange(next)) {
+                if (isInRange(next))
+                {
                     neighbors.push_back(next);
                 }
             }
@@ -357,11 +428,13 @@ struct Grid
 
     //Get a single ray of positions in a specific direction
     // Returns all positions from p (exclusive) until the grid boundary
-    std::vector<pos> getRayLine(pos p, pos direction) {
+    std::vector<pos> getRayLine(pos p, pos direction)
+    {
         std::vector<pos> ray;
         pos current = p.addPos(direction);
 
-        while (isInRange(current)) {
+        while (isInRange(current))
+        {
             ray.push_back(current);
             current = current.addPos(direction);
         }
@@ -370,11 +443,13 @@ struct Grid
 
     //Get all 4 cardinal rays/lines (Up, Right, Down, Left)
     // Useful for "Can this tower see the edge?" or "Is this tree visible?"
-    std::vector<std::vector<pos>> getRayLines4Directions(pos p) {
+    std::vector<std::vector<pos>> getRayLines4Directions(pos p)
+    {
         std::vector<std::vector<pos>> rays;
         static const std::vector<pos> units = {{0, -1}, {1, 0}, {0, 1}, {-1, 0}};
 
-        for (const auto& u : units) {
+        for (const auto& u : units)
+        {
             rays.push_back(getRayLine(p, u));
         }
         return rays;
@@ -382,19 +457,55 @@ struct Grid
 
     // 3. Find the first obstacle in a direction
     // Returns the position of the first char that matches 'target'
-    // or the first char that is NOT a '.'
-    pos findFirstObstacleOnRayLine(pos p, pos direction, char obstacle = '#') {
+    pos findFirstObstacleOnRayLine(pos p, pos direction, char obstacle = '#')
+    {
         pos current = p.addPos(direction);
-        while (isInRange(current)) {
+        while (isInRange(current))
+        {
             if (at(current) == obstacle)
                 return current;
             current = current.addPos(direction);
         }
         return {-1, -1}; // Not found
     }
+
+
+    struct Iterator
+    {
+        int x, y, cols;
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = pos;
+        using difference_type = std::ptrdiff_t;
+        using pointer = pos*;
+        using reference = pos&;
+
+        // This allows the iterator to return a 'pos' when dereferenced
+        pos operator*() const { return {x, y}; }
+
+        // Prefix increment: moves to next cell, wrapping at the end of rows
+        Iterator& operator++()
+        {
+            if (++x >= cols)
+            {
+                x = 0;
+                ++y;
+            }
+            return *this;
+        }
+
+        // Comparison for the loop condition
+        bool operator!=(const Iterator& other) const
+        {
+            return x != other.x || y != other.y;
+        }
+    };
+
+    Iterator begin() const { return {0, 0, cols}; }
+    Iterator end() const { return {0, rows, cols}; } // Points just past the last row
 };
 
 
 Grid readGrid(const std::string& filename);
+void printVecPos(std::vector<pos>& vecPositions);
 
 #endif //TESTPROJEKT_TEST_H
