@@ -1,4 +1,5 @@
 
+
 #include "utils_grid.h"
 
 
@@ -78,26 +79,13 @@ int turnDir(int currentDirection, int steps) //steps: 1 -> right turn, -1 -> lef
 
 Grid readGrid(const std::string& filename)
 {
-    std::ifstream file("input.txt");
-    if (!file)
-        std::cout << "You fucked it up! Input file! \n";
-
+    std::ifstream file(filename);
     std::vector<std::string> lines;
     std::string line;
     while (std::getline(file, line)) {
-        if (!line.empty())
-            lines.push_back(line);
+        if (!line.empty()) lines.push_back(line);
     }
-
-    file.close();
     return Grid(lines);
-}
-
-
-void printVecPos(std::vector<pos>& vecPositions)
-{
-    for (auto& position : vecPositions)
-        position.printPos();
 }
 
 
